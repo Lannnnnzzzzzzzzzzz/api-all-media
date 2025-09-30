@@ -39,7 +39,7 @@ npm install
 3. Example API request to download Instagram media:
 
 ```
-GET http://localhost:3000/api/meta/download?url=https://www.instagram.com/p/DLHQfPiyucu/
+GET https://lnns-apis-allmedia.vercel.app//api/tiktok/download?url=https://www.tiktok.com/@xeightmare/video/7553205135766293771?is_from_webapp=1&sender_device=pc
 ```
 
 Response:
