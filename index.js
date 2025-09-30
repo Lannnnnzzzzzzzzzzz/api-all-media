@@ -25,9 +25,9 @@ app.use("/api/youtube", require("./routes/youtube"));
 app.get("/", (req, res) => {
   res.send({
     success: true,
-    author: "Milan Bhandari",
-    contact: "https://www.milanb.com.np/",
-    msg: "Universal Downloader API is running.",
+    author: "ItsMeLannzz",
+    contact: "Lann Zephry",
+    msg: "gunakan dengan bijak.",
   });
 });
 
