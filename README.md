@@ -20,26 +20,59 @@ To install the necessary dependencies, run the following command:
 npm install
 ```
 
-## Usage
+## Features
 
-Here is an example of how you can use the `api-all-media` project:
+- Download media from popular platforms:
+  - CapCut
+  - Douyin
+  - Facebook & Instagram ( meta )
+  - LinkedIn
+  - Pinterest
+  - Reddit
+  - Soundcloud
+  - Spotify
+  - Threads
+  - TikTok
+  - Twitter ( X )
+  - YouTube
 
-```javascript
-const express = require('express');
-const axios = require('axios');
+3. Example API request to download Instagram media:
 
-const app = express();
-const port = 3000;
-
-app.get('/', async (req, res) => {
-  const response = await axios.get('https://api.example.com');
-  res.send(response.data);
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
 ```
+GET http://localhost:3000/api/meta/download?url=https://www.instagram.com/p/DLHQfPiyucu/
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    // media download info here
+  }
+}
+```
+
+---
+
+## API Endpoints
+
+| Endpoint                   | Description                       | Method |
+| -------------------------- | --------------------------------- | ------ |
+| `/api/capcut/download`     | Download CapCut media             | GET    |
+| `/api/douyin/download`     | Download Douyin media             | GET    |
+| `/api/linkedin/download`   | Download LinkedIn media           | GET    |
+| `/api/meta/download`       | Download Facebook/Instagram media | GET    |
+| `/api/pinterest/download`  | Download Pinterest media          | GET    |
+| `/api/reddit/download`     | Download Reddit media             | GET    |
+| `/api/soundcloud/download` | Download Soundcloud media         | GET    |
+| `/api/spotify/download`    | Download Spotify media            | GET    |
+| `/api/threads/download`    | Download Threads media            | GET    |
+| `/api/tiktok/download`     | Download TikTok media             | GET    |
+| `/api/twitter/download`    | Download Twitter media            | GET    |
+| `/api/youtube/download`    | Download YouTube media            | GET    |
+
+**~~See the full interactive API docs with Swagger at `/api-docs`.~~**
 
 ## Dependencies
 
