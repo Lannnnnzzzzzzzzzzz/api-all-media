@@ -7,47 +7,45 @@ const cheerio = require("cheerio");
  * @returns {Promise<Object>}
  */
 async function fetchTikTokData(videoUrl) {
-  const endpoint = "https://tikdownloader.io/api/ajaxSearch";
-
   try {
-    const res = await axios.post(
-      endpoint,
-      new URLSearchParams({
-        q: videoUrl,
-        lang: "en",
-      }),
-      {
-        headers: {
-          accept: "*/*",
-          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "x-requested-with": "XMLHttpRequest",
-          Referer: "https://tikdownloader.io/en",
-        },
+    const res = await axios.get("https://www.tikwm.com/api/", {
+      params: {
+        url: videoUrl,
+        hd: 1
+      },
+      headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
       }
-    );
-
-    const html = res.data.data;
-    const $ = cheerio.load(html);
-
-    const thumbnail = $(".thumbnail img").attr("src") || null;
-    const title = $(".thumbnail h3").text().trim() || null;
-
-    const downloads = [];
-    $(".dl-action a").each((i, el) => {
-      downloads.push({
-        text: $(el).text().trim(),
-        url: $(el).attr("href"),
-      });
     });
 
+    if (res.data.code !== 0 || !res.data.data) {
+      throw new Error("Invalid response from TikWM API");
+    }
+
+    const data = res.data.data;
+
     return {
-      status: res.data.status,
-      title,
-      thumbnail,
-      downloads,
+      status: "success",
+      title: data.title || null,
+      thumbnail: data.cover || data.origin_cover || null,
+      author: data.author?.nickname || null,
+      downloads: [
+        {
+          text: "Download Video (No Watermark)",
+          url: data.hdplay || data.play || null,
+        },
+        {
+          text: "Download Video (Watermark)",
+          url: data.wmplay || null,
+        },
+        {
+          text: "Download Audio",
+          url: data.music || null,
+        }
+      ].filter(item => item.url),
     };
   } catch (error) {
-    throw new Error(`TikDownloader request failed: ${error.message}`);
+    throw new Error(`TikTok download failed: ${error.message}`);
   }
 }
 

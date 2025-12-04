@@ -1,60 +1,43 @@
 const axios = require("axios");
-const cheerio = require("cheerio");
 
 async function fetchDouyinVideoInfo(douyinUrl) {
   try {
-    const params = new URLSearchParams({
-      q: douyinUrl,
-      lang: "en",
-      cftoken: "",
-    });
-
-    const response = await axios.post(
-      "https://savetik.co/api/ajaxSearch",
-      params.toString(),
-      {
-        headers: {
-          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "x-requested-with": "XMLHttpRequest",
-          Referer: "https://savetik.co/en/douyin-downloader",
-          accept: "*/*",
-          "accept-language": "en-US,en;q=0.5",
-        },
+    const response = await axios.get("https://www.tikwm.com/api/", {
+      params: {
+        url: douyinUrl,
+        hd: 1
+      },
+      headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
       }
-    );
-
-    if (response.data.status !== "ok") {
-      throw new Error("API returned error: " + JSON.stringify(response.data));
-    }
-
-    const $ = cheerio.load(response.data.data);
-
-    const thumbnail =
-      $(".tik-left .thumbnail .image-tik img").attr("src") || null;
-    const title = $(".tik-left .thumbnail .content h3").text().trim() || null;
-    const timestamp =
-      $(".tik-left .thumbnail .content p").text().trim() || null;
-
-    const videoLinks = [];
-    $(".tik-right .dl-action a.tik-button-dl").each((i, el) => {
-      videoLinks.push({
-        label: $(el).text().trim(),
-        url: $(el).attr("href"),
-      });
     });
 
-    if (
-      videoLinks.length > 0 &&
-      videoLinks[videoLinks.length - 1].label.toLowerCase().includes("profile")
-    ) {
-      videoLinks.pop();
+    if (response.data.code !== 0 || !response.data.data) {
+      throw new Error("Invalid response from Douyin API");
     }
+
+    const data = response.data.data;
 
     return {
-      thumbnail,
-      title,
-      timestamp,
-      videoLinks,
+      status: "success",
+      thumbnail: data.cover || data.origin_cover || null,
+      title: data.title || null,
+      author: data.author?.nickname || null,
+      timestamp: data.create_time || null,
+      videoLinks: [
+        {
+          label: "Download Video (No Watermark)",
+          url: data.hdplay || data.play || null,
+        },
+        {
+          label: "Download Video (Watermark)",
+          url: data.wmplay || null,
+        },
+        {
+          label: "Download Audio",
+          url: data.music || null,
+        }
+      ].filter(item => item.url)
     };
   } catch (error) {
     throw error;

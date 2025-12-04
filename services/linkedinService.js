@@ -2,31 +2,36 @@ const axios = require("axios");
 
 async function fetchLinkedinData(url) {
   try {
-    const apiUrl = "https://saywhat.ai/api/fetch-linkedin-page/";
-
     const response = await axios.post(
-      apiUrl,
+      "https://api.keeplinked.com/download",
       { url },
       {
         headers: {
-          accept: "*/*",
-          "accept-language": "en-US,en;q=0.9",
+          "accept": "application/json",
           "content-type": "application/json",
-          priority: "u=1, i",
-          "sec-ch-ua":
-            '"Not)A;Brand";v="8", "Chromium";v="138", "Brave";v="138"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": '"Windows"',
-          "sec-fetch-dest": "empty",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-origin",
-          "sec-gpc": "1",
-          Referer: "https://saywhat.ai/tools/linkedin-video-downloader/",
-        },
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "origin": "https://keeplinked.com",
+          "referer": "https://keeplinked.com/"
+        }
       }
     );
 
-    return response.data;
+    if (!response.data || !response.data.url) {
+      throw new Error("Invalid response from LinkedIn API");
+    }
+
+    return {
+      status: "ok",
+      title: response.data.title || "LinkedIn Video",
+      thumbnail: response.data.thumbnail || null,
+      downloads: [
+        {
+          url: response.data.url,
+          quality: "Original",
+          type: "video"
+        }
+      ]
+    };
   } catch (error) {
     throw new Error(`LinkedIn API request failed: ${error.message}`);
   }

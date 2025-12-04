@@ -2,52 +2,41 @@ const axios = require('axios');
 
 async function fetchSpotify(url) {
   try {
-    // Spotisongdownloader API
-    const spotisongUrl = `https://spotisongdownloader.to/api/composer/spotify/xsingle_track.php?url=${encodeURIComponent(url)}`;
-    const spotisongReq = axios.get(spotisongUrl);
-
-    // Downloaderize API
-    const downloaderizeReq = axios.post(
-      'https://spotify.downloaderize.com/wp-admin/admin-ajax.php',
-      `action=spotify_downloader_get_info&url=${encodeURIComponent(url)}&nonce=56de9e968b`,
+    const response = await axios.post(
+      'https://api.fabdl.com/spotify/get',
+      `url=${encodeURIComponent(url)}`,
       {
         headers: {
-          'accept': 'application/json, text/javascript, */*; q=0.01',
-          'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'origin': 'https://spotify.downloaderize.com',
-          'referer': 'https://spotify.downloaderize.com/',
-          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-          'x-requested-with': 'XMLHttpRequest'
+          'accept': 'application/json, text/plain, */*',
+          'content-type': 'application/x-www-form-urlencoded',
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'origin': 'https://spotifydownload.org',
+          'referer': 'https://spotifydownload.org/'
         }
       }
     );
 
-    // Run both requests in parallel
-    const [spotisongRes, downloaderizeRes] = await Promise.all([spotisongReq, downloaderizeReq]);
-
-    // Parse spotisong
-    const spotisongData = spotisongRes.data;
-    if (!spotisongData || spotisongData.res !== 200) {
-      throw new Error("Failed to fetch spotisong metadata");
+    if (!response.data || response.data.result === false) {
+      throw new Error("Invalid response from Spotify API");
     }
 
-    // Parse downloaderize
-    const downloadLinks = (downloaderizeRes.data?.data?.medias || []).map(m => ({
-      url: m.url,
-      quality: m.quality || "unknown",
-      extension: m.extension || "mp3",
-      type: m.type || "audio"
-    }));
+    const data = response.data.result;
 
-    // Final merged response
     return {
-      title: spotisongData.song_name,
-      album: spotisongData.album_name,
-      author: spotisongData.artist,
-      thumbnail: spotisongData.img,
-      duration: spotisongData.duration,
-      released: spotisongData.released,
-      downloadLinks
+      title: data.name || data.title,
+      album: data.album,
+      author: data.artists,
+      thumbnail: data.image,
+      duration: data.duration_ms ? Math.floor(data.duration_ms / 1000) : null,
+      released: data.release_date,
+      downloadLinks: [
+        {
+          url: data.download || null,
+          quality: "128kbps",
+          extension: "mp3",
+          type: "audio"
+        }
+      ].filter(item => item.url)
     };
   } catch (err) {
     throw new Error(`Spotify fetch failed: ${err.message}`);
