@@ -1,9 +1,10 @@
 const axios = require("axios");
+const cheerio = require("cheerio");
 
 async function facebookInsta(url) {
   try {
     const response = await axios.post(
-      "https://v3.saveig.app/api/ajaxSearch",
+      "https://saveig.app/api/ajaxSearch",
       new URLSearchParams({
         q: url,
         t: "media",
@@ -13,8 +14,11 @@ async function facebookInsta(url) {
         headers: {
           "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "accept": "*/*"
-        }
+          "accept": "*/*",
+          "origin": "https://saveig.app",
+          "referer": "https://saveig.app/en"
+        },
+        timeout: 30000
       }
     );
 
@@ -22,7 +26,6 @@ async function facebookInsta(url) {
       throw new Error("Invalid response from SaveIG API");
     }
 
-    const cheerio = require("cheerio");
     const $ = cheerio.load(response.data.data);
 
     const downloads = [];

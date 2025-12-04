@@ -4,7 +4,7 @@ const cheerio = require("cheerio");
 async function threadsDownloader(url) {
   try {
     const response = await axios.post(
-      "https://v3.saveig.app/api/ajaxSearch",
+      "https://saveig.app/api/ajaxSearch",
       new URLSearchParams({
         q: url,
         t: "media",
@@ -14,8 +14,11 @@ async function threadsDownloader(url) {
         headers: {
           "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "accept": "*/*"
-        }
+          "accept": "*/*",
+          "origin": "https://saveig.app",
+          "referer": "https://saveig.app/en"
+        },
+        timeout: 30000
       }
     );
 
